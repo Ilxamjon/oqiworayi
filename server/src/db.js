@@ -1,6 +1,8 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
+console.log("Database URL present:", !!process.env.DATABASE_URL);
+
 const sequelize = process.env.DATABASE_URL
     ? new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',
