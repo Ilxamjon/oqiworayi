@@ -143,7 +143,7 @@ app.get('/api/payments', async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   try {
     await sequelize.authenticate();
