@@ -13,8 +13,8 @@ const Payment = () => {
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const CARD_NUMBER = "8600 0000 0000 0000";
-    const CARD_HOLDER = "O'quv Markazi";
+    const CARD_NUMBER = "4916 9911 2723 4420";
+    const CARD_HOLDER = "JAPAKOV ILXOMJAN";
 
     useEffect(() => {
         api.get('/students').then((res) => setStudents(res.data));
