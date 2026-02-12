@@ -18,9 +18,9 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (username, password) => {
+    const login = async (username, password, endpoint = '/auth/login') => {
         try {
-            const { data } = await api.post('/auth/login', { username, password });
+            const { data } = await api.post(endpoint, { username, password });
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
@@ -38,8 +38,14 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateProfile = (updatedUser) => {
+        const newUser = { ...user, ...updatedUser };
+        setUser(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, updateProfile, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

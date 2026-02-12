@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { GraduationCap, UserPlus, CreditCard, CalendarCheck, Home, BookOpen, LogOut, LogIn, LayoutDashboard } from 'lucide-react';
+import { GraduationCap, UserPlus, CreditCard, CalendarCheck, Home, BookOpen, LogOut, LogIn, LayoutDashboard, User } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/Button';
@@ -57,6 +57,15 @@ const Layout = () => {
                         <div className="flex items-center space-x-4">
                             {user ? (
                                 <div className="flex items-center space-x-4">
+                                    <Link to="/profile">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                                        >
+                                            <User size={16} className="mr-2" /> Profil
+                                        </Button>
+                                    </Link>
                                     <span className="text-sm font-medium text-gray-700 hidden sm:block">
                                         {user.fullName}
                                     </span>

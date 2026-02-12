@@ -2,5 +2,6 @@ node_modules
 .env
 database.sqlite
 uploads
+profile-pictures
 dist
 .DS_Store

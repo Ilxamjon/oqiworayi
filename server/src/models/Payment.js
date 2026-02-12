@@ -20,6 +20,11 @@ const Payment = sequelize.define('Payment', {
         type: DataTypes.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
     },
+    paymentType: {
+        type: DataTypes.ENUM('cash', 'online'),
+        defaultValue: 'online',
+        allowNull: false,
+    },
 });
 
 // Student.hasMany(Payment);

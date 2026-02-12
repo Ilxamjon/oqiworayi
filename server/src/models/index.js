@@ -22,6 +22,10 @@ Attendance.belongsTo(Subject);
 Student.hasMany(Payment);
 Payment.belongsTo(Student);
 
+// Teacher - Subject (One Teacher -> Many Subjects)
+User.hasMany(Subject, { as: 'subjects', foreignKey: 'TeacherId' });
+Subject.belongsTo(User, { as: 'teacher', foreignKey: 'TeacherId' });
+
 module.exports = {
     sequelize,
     User,

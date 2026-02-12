@@ -10,6 +10,10 @@ import Attendance from './pages/Attendance';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
+import Profile from './pages/Profile';
+import StudentView from './pages/StudentView';
+import StudentList from './pages/StudentList';
+import StudentPanel from './pages/StudentPanel';
 
 // Protected Route Component
 const RequireAuth = ({ children, roles }) => {
@@ -67,6 +71,42 @@ function App() {
               element={
                 <RequireAuth roles={['teacher', 'admin']}>
                   <TeacherDashboard />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="profile"
+              element={
+                <RequireAuth>
+                  <Profile />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="student/:id"
+              element={
+                <RequireAuth roles={['admin', 'teacher']}>
+                  <StudentView />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="students"
+              element={
+                <RequireAuth roles={['admin', 'teacher']}>
+                  <StudentList />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="student-panel"
+              element={
+                <RequireAuth roles={['student']}>
+                  <StudentPanel />
                 </RequireAuth>
               }
             />

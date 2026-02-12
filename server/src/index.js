@@ -13,15 +13,22 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploaded receipts)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/profile-pictures', express.static(path.join(__dirname, '../profile-pictures')));
 
 // -----------------------------------------------------------------------------
 // ROUTES (Simplistic implementation without separate files for brevity initially)
 // -----------------------------------------------------------------------------
 
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
+const adminRoutes = require('./routes/admin');
+const studentAuthRoutes = require('./routes/student-auth');
 const { User, Student, Subject, Attendance, Payment } = require('./models');
 
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/student-auth', studentAuthRoutes);
 
 // 1. Setup & Init (Create tables & Default data)
 app.get('/api/init', async (req, res) => {
@@ -38,9 +45,12 @@ app.get('/api/init', async (req, res) => {
     await User.create({ username: 'math_teacher', password: teacherPass, role: 'teacher', fullName: 'Alisher Valiyev' });
     await User.create({ username: 'eng_teacher', password: teacherPass, role: 'teacher', fullName: 'Vali Aliyev' });
 
-    // Create Subjects
-    await Subject.create({ name: 'Matematika', price: 500000 });
-    await Subject.create({ name: 'Ingliz Tili', price: 600000 });
+    // Create Subjects with Teachers
+    const mathTeacher = await User.findOne({ where: { username: 'math_teacher' } });
+    const engTeacher = await User.findOne({ where: { username: 'eng_teacher' } });
+
+    await Subject.create({ name: 'Matematika', price: 500000, TeacherId: mathTeacher.id });
+    await Subject.create({ name: 'Ingliz Tili', price: 600000, TeacherId: engTeacher.id });
 
     res.json({ message: 'Database initialized successfully!' });
   } catch (error) {
@@ -49,22 +59,98 @@ app.get('/api/init', async (req, res) => {
 });
 
 // 2. Students CRUD
-app.get('/api/students', async (req, res) => {
-  const students = await Student.findAll({ include: Subject });
-  res.json(students);
+const { authenticateToken } = require('./middleware/auth');
+
+// 2. Students CRUD
+app.get('/api/students', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    let options = { include: Subject };
+
+    if (user.role === 'teacher') {
+      // Find subjects assigned to this teacher
+      const teacherSubjects = await Subject.findAll({ where: { TeacherId: user.id } });
+      const subjectIds = teacherSubjects.map(s => s.id);
+
+      // Filter students who have at least one of these subjects
+      options = {
+        include: [
+          {
+            model: Subject,
+            where: { id: subjectIds }
+          }
+        ]
+      };
+    }
+
+    const students = await Student.findAll(options);
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post('/api/students', async (req, res) => {
   try {
+    const bcrypt = require('bcryptjs');
     const { fullName, grade, phone, subjectIds } = req.body; // subjectIds array [1, 2]
-    const student = await Student.create({ fullName, grade, phone });
 
-    if (subjectIds && subjectIds.length > 0) {
-      const subjects = await Subject.findAll({ where: { id: subjectIds } });
-      await student.addSubjects(subjects);
+    // Telefon raqamidan login yaratish
+    let username = null;
+    let password = null;
+
+    if (phone) {
+      // Telefon raqamidan faqat raqamlarni olish
+      const phoneDigits = phone.replace(/\D/g, '');
+      // Oxirgi 4 ta raqam username uchun
+      const last4 = phoneDigits.slice(-4);
+      username = `student_${last4}`;
+
+      // Oxirgi 6 ta raqam parol uchun
+      const last6 = phoneDigits.slice(-6);
+      password = last6;
+
+      // Parolni hashlash
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // O'quvchini yaratish
+      const student = await Student.create({
+        fullName,
+        grade,
+        phone,
+        username,
+        password: hashedPassword
+      });
+
+      if (subjectIds && subjectIds.length > 0) {
+        const subjects = await Subject.findAll({ where: { id: subjectIds } });
+        await student.addSubjects(subjects);
+      }
+
+      // Login ma'lumotlarini qaytarish (faqat bir marta)
+      res.json({
+        student: {
+          id: student.id,
+          fullName: student.fullName,
+          grade: student.grade,
+          phone: student.phone
+        },
+        credentials: {
+          username,
+          password // Faqat bir marta ko'rsatish uchun
+        }
+      });
+    } else {
+      // Telefon raqam bo'lmasa, oddiy yaratish
+      const student = await Student.create({ fullName, grade, phone });
+
+      if (subjectIds && subjectIds.length > 0) {
+        const subjects = await Subject.findAll({ where: { id: subjectIds } });
+        await student.addSubjects(subjects);
+      }
+
+      res.json({ student });
     }
-
-    res.json(student);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

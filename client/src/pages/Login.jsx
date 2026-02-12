@@ -11,6 +11,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isStudent, setIsStudent] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -19,9 +20,13 @@ const Login = () => {
         setError('');
         setLoading(true);
         try {
-            const user = await login(username, password);
+            // O'quvchi yoki admin/teacher login
+            const endpoint = isStudent ? '/student-auth/login' : '/auth/login';
+            const user = await login(username, password, endpoint);
+
             if (user.role === 'admin') navigate('/admin');
             else if (user.role === 'teacher') navigate('/teacher');
+            else if (user.role === 'student') navigate('/student-panel');
             else navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Kirishda xatolik yuz berdi');
@@ -46,6 +51,27 @@ const Login = () => {
                                 {error}
                             </div>
                         )}
+
+                        <div className="flex gap-4 mb-4">
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    checked={!isStudent}
+                                    onChange={() => setIsStudent(false)}
+                                    className="w-4 h-4 text-indigo-600"
+                                />
+                                <span>Admin/O'qituvchi</span>
+                            </label>
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    checked={isStudent}
+                                    onChange={() => setIsStudent(true)}
+                                    className="w-4 h-4 text-indigo-600"
+                                />
+                                <span>O'quvchi</span>
+                            </label>
+                        </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700">Login</label>
                             <Input

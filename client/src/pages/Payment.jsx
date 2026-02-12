@@ -10,6 +10,7 @@ const Payment = () => {
     const [selectedStudent, setSelectedStudent] = useState('');
     const [amount, setAmount] = useState('');
     const [file, setFile] = useState(null);
+    const [paymentType, setPaymentType] = useState('online');
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
 
@@ -32,13 +33,20 @@ const Payment = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file || !selectedStudent) return;
+        if (!selectedStudent) return;
+        if (paymentType === 'online' && !file) {
+            alert('Online to\'lov uchun chek yuklash majburiy!');
+            return;
+        }
 
         setLoading(true);
         const formData = new FormData();
         formData.append('studentId', selectedStudent);
         formData.append('amount', amount);
-        formData.append('receipt', file);
+        formData.append('paymentType', paymentType);
+        if (file) {
+            formData.append('receipt', file);
+        }
 
         try {
             await api.post('/payments/upload', formData, {
@@ -129,26 +137,56 @@ const Payment = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium block">Chek Rasmi (Click/Payme)</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative bg-gray-50/50">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    onChange={handleFileChange}
-                                    required
-                                />
-                                <div className="flex flex-col items-center">
-                                    <div className="p-4 bg-indigo-50 rounded-full mb-3">
-                                        <UploadCloud className="h-8 w-8 text-indigo-600" />
-                                    </div>
-                                    <span className="font-medium text-gray-700">Rasm yuklash uchun bosing</span>
-                                    <span className="text-sm text-gray-500 mt-1">
-                                        {file ? file.name : "Yoki faylni shu yerga tashlang"}
-                                    </span>
-                                </div>
+                            <label className="text-sm font-medium block">To'lov Turi</label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="paymentType"
+                                        value="cash"
+                                        checked={paymentType === 'cash'}
+                                        onChange={(e) => setPaymentType(e.target.value)}
+                                        className="w-4 h-4 text-indigo-600"
+                                    />
+                                    <span>Naqd pul</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="paymentType"
+                                        value="online"
+                                        checked={paymentType === 'online'}
+                                        onChange={(e) => setPaymentType(e.target.value)}
+                                        className="w-4 h-4 text-indigo-600"
+                                    />
+                                    <span>Online to'lov</span>
+                                </label>
                             </div>
                         </div>
+
+                        {paymentType === 'online' && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium block">Chek Rasmi (Click/Payme)</label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative bg-gray-50/50">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        onChange={handleFileChange}
+                                        required
+                                    />
+                                    <div className="flex flex-col items-center">
+                                        <div className="p-4 bg-indigo-50 rounded-full mb-3">
+                                            <UploadCloud className="h-8 w-8 text-indigo-600" />
+                                        </div>
+                                        <span className="font-medium text-gray-700">Rasm yuklash uchun bosing</span>
+                                        <span className="text-sm text-gray-500 mt-1">
+                                            {file ? file.name : "Yoki faylni shu yerga tashlang"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -157,7 +195,7 @@ const Payment = () => {
                     </form>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 };
 
