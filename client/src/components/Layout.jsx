@@ -32,12 +32,13 @@ const Layout = () => {
                         <div className="hidden md:flex items-center space-x-1">
                             <NavLink to="/" icon={<Home size={18} />} label="Bosh Sahifa" active={location.pathname === '/'} />
 
-                            {!user || user.role === 'admin' ? (
-                                <>
-                                    <NavLink to="/register" icon={<UserPlus size={18} />} label="Ro'yxatdan O'tish" active={location.pathname === '/register'} />
-                                    <NavLink to="/payment" icon={<CreditCard size={18} />} label="To'lov" active={location.pathname === '/payment'} />
-                                </>
-                            ) : null}
+                            {!user && (
+                                <NavLink to="/register" icon={<UserPlus size={18} />} label="Ro'yxatdan O'tish" active={location.pathname === '/register'} />
+                            )}
+
+                            {user && (
+                                <NavLink to="/payment" icon={<CreditCard size={18} />} label="To'lov" active={location.pathname === '/payment'} />
+                            )}
 
                             <NavLink to="/courses" icon={<BookOpen size={18} />} label="Kurslar" active={location.pathname === '/courses'} />
 

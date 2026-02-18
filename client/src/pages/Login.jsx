@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Loader2, LogIn } from 'lucide-react';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+    const prefilledData = location.state || {};
+
+    const [username, setUsername] = useState(prefilledData.username || '');
+    const [password, setPassword] = useState(prefilledData.password || '');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isStudent, setIsStudent] = useState(false);
+    const [isStudent, setIsStudent] = useState(prefilledData.isStudent || false);
     const { login } = useAuth();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();

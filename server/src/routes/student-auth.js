@@ -34,6 +34,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Token yaratish
+        const jwtSecret = process.env.JWT_SECRET || 'your_fallback_secret_key_change_me';
         const token = jwt.sign(
             {
                 id: student.id,
@@ -41,7 +42,7 @@ router.post('/login', async (req, res) => {
                 role: 'student',
                 fullName: student.fullName
             },
-            'your_jwt_secret_key',
+            jwtSecret,
             { expiresIn: '24h' }
         );
 

@@ -23,18 +23,18 @@ router.post('/login', async (req, res) => {
         // However, to do it properly, we should update the User creation to hash passwords.
         // Let's assume for this step we will check plain text if it matches, if not try bcrypt compare.
 
-        let isMatch = false;
-        if (user.password === password) {
-            isMatch = true;
-        } else {
-            isMatch = await bcrypt.compare(password, user.password);
-        }
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid login credentials' });
         }
 
-        const token = jwt.sign({ id: user.id, username: user.username, role: user.role, fullName: user.fullName }, 'your_jwt_secret_key', { expiresIn: '24h' });
+        const jwtSecret = process.env.JWT_SECRET || 'your_fallback_secret_key_change_me';
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role, fullName: user.fullName },
+            jwtSecret,
+            { expiresIn: '24h' }
+        );
 
         res.json({ user: { id: user.id, username: user.username, role: user.role, fullName: user.fullName }, token });
     } catch (error) {

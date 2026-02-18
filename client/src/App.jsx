@@ -44,7 +44,14 @@ function App() {
             <Route index element={<Home />} />
             <Route path="register" element={<Register />} />
             <Route path="courses" element={<Courses />} />
-            <Route path="payment" element={<Payment />} />
+            <Route
+              path="payment"
+              element={
+                <RequireAuth>
+                  <Payment />
+                </RequireAuth>
+              }
+            />
             <Route path="login" element={<Login />} />
 
             {/* Protected Routes */}

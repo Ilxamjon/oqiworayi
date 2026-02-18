@@ -16,7 +16,7 @@ const Register = () => {
         subjectIds: [],
     });
     const [subjects, setSubjects] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [credentials, setCredentials] = useState(null);
 
@@ -26,6 +26,7 @@ const Register = () => {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (error) setError('');
     };
 
     const handleSubjectToggle = (id) => {
@@ -35,17 +36,19 @@ const Register = () => {
                 : [...prev.subjectIds, id];
             return { ...prev, subjectIds: ids };
         });
+        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             const { data } = await api.post('/students', formData);
             setCredentials(data.credentials);
             setSuccess(true);
         } catch (error) {
-            alert('Xatolik yuz berdi: ' + error.message);
+            setError(error.response?.data?.error || 'Xatolik yuz berdi: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -108,7 +111,13 @@ const Register = () => {
                             </div>
 
                             <Button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/login', {
+                                    state: {
+                                        username: credentials.username,
+                                        password: credentials.password,
+                                        isStudent: true
+                                    }
+                                })}
                                 className="w-full mt-4"
                             >
                                 Tizimga Kirish
@@ -128,6 +137,11 @@ const Register = () => {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200 animate-in fade-in duration-300">
+                                {error}
+                            </div>
+                        )}
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700">F.I.SH</label>
                             <Input
