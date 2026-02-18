@@ -32,7 +32,8 @@ const Login = () => {
             else if (user.role === 'student') navigate('/student-panel');
             else navigate('/');
         } catch (err) {
-            setError(err.response?.data?.error || 'Kirishda xatolik yuz berdi');
+            const errorMessage = err.response?.data?.error || err.message || 'Kirishda xatolik yuz berdi';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

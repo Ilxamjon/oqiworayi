@@ -16,6 +16,7 @@ const Register = () => {
         subjectIds: [],
     });
     const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [credentials, setCredentials] = useState(null);
