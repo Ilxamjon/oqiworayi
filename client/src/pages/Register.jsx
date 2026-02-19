@@ -22,7 +22,7 @@ const Register = () => {
     const [credentials, setCredentials] = useState(null);
 
     useEffect(() => {
-        api.get('/subjects').then((res) => setSubjects(res.data));
+        api.get('subjects').then((res) => setSubjects(res.data));
     }, []);
 
     const handleChange = (e) => {
@@ -45,7 +45,7 @@ const Register = () => {
         setLoading(true);
         setError('');
         try {
-            const { data } = await api.post('/students', formData);
+            const { data } = await api.post('students', formData);
             setCredentials(data.credentials);
             setSuccess(true);
         } catch (error) {

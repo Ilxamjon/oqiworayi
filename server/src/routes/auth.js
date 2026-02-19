@@ -23,7 +23,12 @@ router.post('/login', async (req, res) => {
         // However, to do it properly, we should update the User creation to hash passwords.
         // Let's assume for this step we will check plain text if it matches, if not try bcrypt compare.
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        let isMatch = await bcrypt.compare(password, user.password);
+
+        // Agar bcrypt mos kelmasa va bazadagi parol xesh ko'rinishida bo'lmasa (migratsiya bosqichi uchun)
+        if (!isMatch && !user.password.startsWith('$2')) {
+            isMatch = (password === user.password);
+        }
 
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid login credentials' });

@@ -19,12 +19,12 @@ const StudentView = () => {
     const fetchStudentData = async () => {
         try {
             // O'quvchi ma'lumotlari
-            const studentsRes = await api.get('/students');
+            const studentsRes = await api.get('students');
             const studentData = studentsRes.data.find(s => s.id === parseInt(id));
             setStudent(studentData);
 
             // Davomat ma'lumotlari
-            const attendanceRes = await api.get('/attendance');
+            const attendanceRes = await api.get('attendance');
             const studentAttendance = attendanceRes.data.filter(
                 a => a.StudentId === parseInt(id) && a.status === 'present'
             );

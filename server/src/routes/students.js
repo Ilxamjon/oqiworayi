@@ -1,5 +1,5 @@
 const express = require('express');
-const { Student, Subject } = require('../models');
+const { Student, Subject, Attendance, Payment } = require('../models');
 const { authenticateToken } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const user = req.user;
-        let options = { include: Subject };
+        let options = { include: [Subject, Attendance, Payment] };
 
         if (user.role === 'teacher') {
             const teacherSubjects = await Subject.findAll({ where: { TeacherId: user.id } });
@@ -20,7 +20,9 @@ router.get('/', authenticateToken, async (req, res) => {
                     {
                         model: Subject,
                         where: { id: subjectIds }
-                    }
+                    },
+                    Attendance,
+                    Payment
                 ]
             };
         }

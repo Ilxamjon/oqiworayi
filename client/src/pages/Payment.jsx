@@ -18,7 +18,7 @@ const Payment = () => {
     const CARD_HOLDER = "JAPAKOV ILXOMJAN";
 
     useEffect(() => {
-        api.get('/students').then((res) => setStudents(res.data));
+        api.get('students').then((res) => setStudents(res.data));
     }, []);
 
     const handleFileChange = (e) => {
@@ -49,7 +49,7 @@ const Payment = () => {
         }
 
         try {
-            await api.post('/payments/upload', formData, {
+            await api.post('payments/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             alert("Chek muvaffaqiyatli yuklandi!");

@@ -35,7 +35,7 @@ const Profile = () => {
 
     const fetchProfile = async () => {
         try {
-            const { data } = await api.get('/profile');
+            const { data } = await api.get('profile');
             setProfileData({
                 fullName: data.fullName || '',
                 username: data.username || ''
@@ -45,6 +45,7 @@ const Profile = () => {
             }
         } catch (err) {
             console.error('Profil yuklanmadi:', err);
+            setError(err.response?.data?.error || err.message || 'Profil ma\'lumotlarini yuklashda xatolik');
         }
     };
 
@@ -55,17 +56,24 @@ const Profile = () => {
         setSuccess('');
 
         try {
-            const { data } = await api.put('/profile', profileData);
-            setSuccess('Profil muvaffaqiyatli yangilandi');
+            console.log('Sending profile update:', profileData);
+            const { data } = await api.put('profile', profileData);
 
-            // AuthContext ni yangilash
-            if (updateProfile) {
-                updateProfile(data.user);
+            if (data && data.user) {
+                setSuccess('Profil muvaffaqiyatli yangilandi');
+                // AuthContext ni yangilash
+                if (updateProfile) {
+                    updateProfile(data.user);
+                }
+            } else {
+                throw new Error('Serverdan noto\'g\'ri javob keldi');
             }
 
             setTimeout(() => setSuccess(''), 3000);
         } catch (err) {
-            setError(err.response?.data?.error || 'Xatolik yuz berdi');
+            console.error('Update profile error:', err);
+            const msg = err.response?.data?.error || err.response?.statusText || err.message || 'Xatolik yuz berdi';
+            setError(msg);
         } finally {
             setLoading(false);
         }
@@ -90,7 +98,7 @@ const Profile = () => {
         }
 
         try {
-            await api.put('/profile/password', {
+            await api.put('profile/password', {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
@@ -98,7 +106,8 @@ const Profile = () => {
             setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
             setTimeout(() => setSuccess(''), 3000);
         } catch (err) {
-            setError(err.response?.data?.error || 'Xatolik yuz berdi');
+            console.error('Password change error:', err);
+            setError(err.response?.data?.error || err.message || 'Xatolik yuz berdi');
         } finally {
             setLoading(false);
         }
@@ -126,14 +135,16 @@ const Profile = () => {
         formData.append('profilePicture', profilePicture);
 
         try {
-            await api.post('/profile/picture', formData, {
+            await api.post('profile/picture', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setSuccess('Profil rasmi muvaffaqiyatli yuklandi');
             setProfilePicture(null);
             setTimeout(() => setSuccess(''), 3000);
+            fetchProfile(); // Yangi rasmni ko'rsatish uchun
         } catch (err) {
-            setError(err.response?.data?.error || 'Xatolik yuz berdi');
+            console.error('Picture upload error:', err);
+            setError(err.response?.data?.error || err.message || 'Xatolik yuz berdi');
         } finally {
             setLoading(false);
         }
@@ -240,7 +251,11 @@ const Profile = () => {
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700">Rol</label>
                             <Input
-                                value={user?.role === 'admin' ? 'Administrator' : 'O\'qituvchi'}
+                                value={
+                                    user?.role === 'admin' ? 'Administrator' :
+                                        user?.role === 'teacher' ? 'O\'qituvchi' :
+                                            user?.role === 'student' ? 'O\'quvchi' : user?.role
+                                }
                                 disabled
                                 className="bg-gray-50"
                             />

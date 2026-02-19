@@ -11,14 +11,14 @@ const Attendance = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        api.get('/subjects').then((res) => setSubjects(res.data));
-        api.get('/students').then((res) => setStudents(res.data));
+        api.get('subjects').then((res) => setSubjects(res.data));
+        api.get('students').then((res) => setStudents(res.data));
     }, []);
 
     const handleAttendance = async (studentId, status) => {
         if (!selectedSubject) return alert("Fanni tanlang!");
         try {
-            await api.post('/attendance', {
+            await api.post('attendance', {
                 studentId,
                 subjectId: selectedSubject,
                 date,

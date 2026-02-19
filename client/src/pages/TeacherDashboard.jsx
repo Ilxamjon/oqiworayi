@@ -4,15 +4,17 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { CalendarCheck, Users, BookOpen } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const TeacherDashboard = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // In a real app, fetch only subjects assigned to this teacher
-        api.get('/subjects')
+        api.get('subjects')
             .then(res => setSubjects(res.data))
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
@@ -43,7 +45,7 @@ const TeacherDashboard = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-blue-500">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-blue-500" onClick={() => navigate('/students')}>
                     <CardContent className="p-6 flex items-center justify-between">
                         <div>
                             <h3 className="text-xl font-bold text-gray-800">O'quvchilar Ro'yxati</h3>
@@ -68,7 +70,9 @@ const TeacherDashboard = () => {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-gray-500 mb-4">Haftada 3 kun</p>
-                            <Button variant="outline" size="sm" className="w-full">Guruhni Ko'rish</Button>
+                            <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`/students?subjectId=${sub.id}`)}>
+                                Guruhni Ko'rish
+                            </Button>
                         </CardContent>
                     </Card>
                 ))}

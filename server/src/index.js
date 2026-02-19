@@ -48,24 +48,28 @@ app.get('/api/init', async (req, res) => {
     // Only force sync if explicitly requested via query param
     await sequelize.sync({ force: force === 'true' });
 
-    // Check if admin already exists to avoid duplicates if not forcing
-    const adminExists = await User.findOne({ where: { username: 'admin' } });
-    if (!adminExists) {
-      const adminPass = await bcrypt.hash('adminpassword', 10);
-      const teacherPass = await bcrypt.hash('password', 10);
-
-      await User.create({ username: 'admin', password: adminPass, role: 'admin', fullName: 'Director' });
-      await User.create({ username: 'math_teacher', password: teacherPass, role: 'teacher', fullName: 'Alisher Valiyev' });
-      await User.create({ username: 'eng_teacher', password: teacherPass, role: 'teacher', fullName: 'Vali Aliyev' });
-
-      const mathTeacher = await User.findOne({ where: { username: 'math_teacher' } });
-      const engTeacher = await User.findOne({ where: { username: 'eng_teacher' } });
-
-      const subjectsExist = await Subject.findOne();
-      if (!subjectsExist) {
-        await Subject.create({ name: 'Matematika', price: 500000, TeacherId: mathTeacher.id });
-        await Subject.create({ name: 'Ingliz Tili', price: 600000, TeacherId: engTeacher.id });
+    const createIfNotExist = async (userData) => {
+      const exists = await User.findOne({ where: { username: userData.username } });
+      if (!exists) {
+        return await User.create(userData);
       }
+      return exists;
+    };
+
+    const adminPass = await bcrypt.hash('adminpassword', 10);
+    const teacherPass = await bcrypt.hash('password', 10);
+
+    await createIfNotExist({ username: 'admin', password: adminPass, role: 'admin', fullName: 'Director' });
+    await createIfNotExist({ username: 'math_teacher', password: teacherPass, role: 'teacher', fullName: 'Alisher Valiyev' });
+    await createIfNotExist({ username: 'english_teacher', password: teacherPass, role: 'teacher', fullName: 'Vali Aliyev' });
+
+    const mathTeacher = await User.findOne({ where: { username: 'math_teacher' } });
+    const engTeacher = await User.findOne({ where: { username: 'english_teacher' } });
+
+    const subjectsExist = await Subject.findOne();
+    if (!subjectsExist) {
+      await Subject.create({ name: 'Matematika', price: 500000, TeacherId: mathTeacher.id });
+      await Subject.create({ name: 'Ingliz Tili', price: 600000, TeacherId: engTeacher.id });
     }
 
     res.json({ message: 'Database initialized successfully!' });

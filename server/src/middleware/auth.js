@@ -1,12 +1,21 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_key_change_me';
+
 const auth = (req, res, next) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '');
-        const decoded = jwt.verify(token, 'your_jwt_secret_key'); // In production, use environment variable
+        const authHeader = req.header('Authorization');
+        if (!authHeader) {
+            console.log('Authorization header missing');
+            return res.status(401).send({ error: 'Please authenticate.' });
+        }
+
+        const token = authHeader.replace('Bearer ', '');
+        const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {
+        console.log('Auth middleware error:', error.message);
         res.status(401).send({ error: 'Please authenticate.' });
     }
 };
@@ -26,4 +35,8 @@ const authorize = (roles = []) => {
     ];
 };
 
-module.exports = { auth, authorize };
+module.exports = {
+    auth,
+    authorize,
+    authenticateToken: auth // Alias for compatibility
+};

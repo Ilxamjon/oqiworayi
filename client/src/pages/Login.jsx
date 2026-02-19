@@ -24,7 +24,7 @@ const Login = () => {
         setLoading(true);
         try {
             // O'quvchi yoki admin/teacher login
-            const endpoint = isStudent ? '/student-auth/login' : '/auth/login';
+            const endpoint = isStudent ? 'student-auth/login' : 'auth/login';
             const user = await login(username, password, endpoint);
 
             if (user.role === 'admin') navigate('/admin');

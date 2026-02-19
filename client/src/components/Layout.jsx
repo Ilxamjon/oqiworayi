@@ -53,6 +53,9 @@ const Layout = () => {
                                     <NavLink to="/attendance" icon={<CalendarCheck size={18} />} label="Davomat" active={location.pathname === '/attendance'} />
                                 </>
                             )}
+                            {user && user.role === 'student' && (
+                                <NavLink to="/student-panel" icon={<LayoutDashboard size={18} />} label="O'quvchi Paneli" active={location.pathname === '/student-panel'} />
+                            )}
                         </div>
 
                         <div className="flex items-center space-x-4">

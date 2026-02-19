@@ -21,9 +21,9 @@ const AdminDashboard = () => {
     const fetchData = async () => {
         try {
             const [paymentsRes, studentsRes, teachersRes] = await Promise.all([
-                api.get('/payments'),
-                api.get('/students'),
-                api.get('/admin/teachers')
+                api.get('payments'),
+                api.get('students'),
+                api.get('admin/teachers')
             ]);
             setPayments(paymentsRes.data);
             setStudents(studentsRes.data);
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
         }
 
         try {
-            const { data } = await api.put(`/admin/reset-password/${resetModal.teacher.id}`, {
+            const { data } = await api.put(`admin/reset-password/${resetModal.teacher.id}`, {
                 newPassword: resetModal.newPassword
             });
             setMessage({ type: 'success', text: `${resetModal.teacher.fullName} uchun parol muvaffaqiyatli tiklandi` });

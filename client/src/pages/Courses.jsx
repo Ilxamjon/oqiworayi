@@ -19,7 +19,7 @@ const Courses = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await api.get('/subjects');
+            const response = await api.get('subjects');
             setSubjects(response.data);
         } catch (error) {
             console.error('Failed to fetch subjects', error);
@@ -39,7 +39,7 @@ const Courses = () => {
 
     const handleSave = async (id) => {
         try {
-            await api.put(`/subjects/${id}`, editForm);
+            await api.put(`subjects/${id}`, editForm);
             setEditingId(null);
             fetchSubjects();
         } catch (error) {
