@@ -84,8 +84,8 @@ app.listen(PORT, '0.0.0.0', async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected.');
-    // Simple sync on start, no force
-    await sequelize.sync();
+    // Sync with alter to ensure missing columns are added to existing tables
+    await sequelize.sync({ alter: true });
   } catch (err) {
     console.error('Database connection failed:', err);
   }
