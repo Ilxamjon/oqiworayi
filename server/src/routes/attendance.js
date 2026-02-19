@@ -18,12 +18,29 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/', async (req, res) => {
+const { authenticateToken } = require('../middleware/auth');
+
+router.get('/', authenticateToken, async (req, res) => {
     try {
+        const user = req.user;
         const { date, subjectId } = req.query;
-        const where = {};
+        let where = {};
         if (date) where.date = date;
         if (subjectId) where.SubjectId = subjectId;
+
+        // If teacher, further restrict by their owned subjects
+        if (user.role === 'teacher') {
+            const teacherSubjects = await Subject.findAll({ where: { TeacherId: user.id } });
+            const teacherSubjectIds = teacherSubjects.map(s => s.id);
+
+            if (subjectId) {
+                if (!teacherSubjectIds.includes(parseInt(subjectId))) {
+                    return res.json([]); // Requesting subject they don't own
+                }
+            } else {
+                where.SubjectId = teacherSubjectIds;
+            }
+        }
 
         const records = await Attendance.findAll({
             where,

@@ -52,10 +52,20 @@ router.post('/', async (req, res) => {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
+            let formattedPhone = phone;
+            if (!formattedPhone.startsWith('+')) {
+                const digits = formattedPhone.replace(/\D/g, '');
+                if (digits.length === 9) {
+                    formattedPhone = `+998${digits}`;
+                } else if (digits.length === 12 && digits.startsWith('998')) {
+                    formattedPhone = `+${digits}`;
+                }
+            }
+
             const student = await Student.create({
                 fullName,
                 grade,
-                phone,
+                phone: formattedPhone,
                 username,
                 password: hashedPassword
             });
