@@ -92,4 +92,19 @@ router.post('/', async (req, res) => {
     }
 });
 
+// GET single student
+router.get('/:id', authenticateToken, async (req, res) => {
+    try {
+        const student = await Student.findByPk(req.params.id, {
+            include: [Subject]
+        });
+        if (!student) {
+            return res.status(404).json({ error: 'O\'quvchi topilmadi' });
+        }
+        res.json(student);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

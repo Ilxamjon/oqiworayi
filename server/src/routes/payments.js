@@ -18,11 +18,12 @@ const upload = multer({ storage: storage });
 
 router.post('/upload', upload.single('receipt'), async (req, res) => {
     try {
-        const { studentId, amount } = req.body;
+        const { studentId, amount, paymentType } = req.body;
         const payment = await Payment.create({
             amount: parseFloat(amount),
             receiptImage: req.file ? req.file.filename : null,
             StudentId: studentId,
+            paymentType: paymentType || 'online',
             status: 'pending'
         });
         res.json(payment);

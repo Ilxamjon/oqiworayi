@@ -35,4 +35,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET attendance for a specific student
+router.get('/student/:id', async (req, res) => {
+    try {
+        const records = await Attendance.findAll({
+            where: { StudentId: req.params.id },
+            include: [Subject],
+            order: [['date', 'DESC']]
+        });
+        res.json(records);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
