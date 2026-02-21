@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import api from '../api/axios';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { useAuth } from '../context/AuthContext';
 
 const Attendance = () => {
+    const { user } = useAuth();
     const [subjects, setSubjects] = useState([]);
     const [students, setStudents] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState('');
@@ -11,9 +9,14 @@ const Attendance = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        api.get('subjects').then((res) => setSubjects(res.data));
+        api.get('subjects').then((res) => {
+            setSubjects(res.data);
+            if (user?.role === 'teacher' && res.data.length > 0) {
+                setSelectedSubject(res.data[0].id);
+            }
+        });
         api.get('students').then((res) => setStudents(res.data));
-    }, []);
+    }, [user]);
 
     const handleAttendance = async (studentId, status) => {
         if (!selectedSubject) return alert("Fanni tanlang!");
@@ -42,19 +45,28 @@ const Attendance = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="grid md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Fan</label>
-                            <select
-                                className="w-full border p-2 rounded"
-                                value={selectedSubject}
-                                onChange={(e) => setSelectedSubject(e.target.value)}
-                            >
-                                <option value="">Fanni tanlang</option>
-                                {subjects.map((sub) => (
-                                    <option key={sub.id} value={sub.id}>{sub.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        {user?.role === 'admin' ? (
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Fan</label>
+                                <select
+                                    className="w-full border p-2 rounded"
+                                    value={selectedSubject}
+                                    onChange={(e) => setSelectedSubject(e.target.value)}
+                                >
+                                    <option value="">Fanni tanlang</option>
+                                    {subjects.map((sub) => (
+                                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col justify-end">
+                                <p className="text-sm font-medium text-gray-500 mb-1">Dars:</p>
+                                <p className="text-lg font-bold text-indigo-700">
+                                    {subjects.find(s => s.id === selectedSubject)?.name || 'Yuklanmoqda...'}
+                                </p>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-medium mb-1">Sana</label>
                             <input
